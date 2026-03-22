@@ -1,0 +1,9 @@
+{
+  "name": "allee-cmip",
+  "version": "1.0.0",
+  "description": "Allee Critical Minerals Intelligence Platform — Section 19, T12S, R8E, Hardin County IL",
+  "scripts": {
+    "start": "npx http-server -p 3000 --cors -o",
+    "dev": "npx http-server -p 3000 --cors -c-1 -o"
+  }
+}
