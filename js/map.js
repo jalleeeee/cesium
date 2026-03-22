@@ -110,72 +110,144 @@ const SPARKS_HILL = {
 // ============================================================
 
 const GEOPHYSICAL_OVERLAYS = {
-  // Aeroradiometric Equivalent Thorium — THE key REE indicator
-  // Thorium concentrations directly correlate with REE in carbonatite systems
+  // ── RADIOMETRIC (aerial gamma-ray) ──
+  // Correct endpoint: /services/aerorad with named layers
   thorium: {
     name: 'Aeroradiometric Thorium (eTh)',
-    description: 'USGS aerial gamma-ray survey — equivalent Thorium concentration. High Th = REE indicator in carbonatite/alkaline systems. Hot colors = high radioactivity = potential REE mineralization underground.',
-    url: 'https://mrdata.usgs.gov/services/radiometric-th',
-    wmsLayers: '0',
+    description: 'USGS aerial gamma-ray survey — equivalent Thorium. High Th = DIRECT REE indicator in carbonatite/alkaline systems. Hot colors = high radioactivity = REE mineralization underground.',
+    url: 'https://mrdata.usgs.gov/services/aerorad',
+    wmsLayers: 'Thorium',
     alpha: 0.55,
     category: 'radiometric',
     legend: 'Hot colors (red/yellow) = HIGH thorium = REE correlation',
     source: 'USGS Aeroradiometric Compilation, Phillips et al.'
   },
-  // Aeroradiometric Equivalent Uranium
   uranium: {
     name: 'Aeroradiometric Uranium (eU)',
-    description: 'USGS aerial gamma-ray survey — equivalent Uranium. Elevated eU along fault zones indicates deep-sourced hydrothermal fluid flow — same process that transports REE.',
-    url: 'https://mrdata.usgs.gov/services/radiometric-u',
-    wmsLayers: '0',
+    description: 'USGS aerial gamma-ray — equivalent Uranium. Elevated eU along fault zones = deep-sourced hydrothermal fluid flow — same process that transports REE.',
+    url: 'https://mrdata.usgs.gov/services/aerorad',
+    wmsLayers: 'Uranium',
     alpha: 0.55,
     category: 'radiometric',
     legend: 'Hot colors = HIGH uranium = hydrothermal activity indicator',
     source: 'USGS Aeroradiometric Compilation, Phillips et al.'
   },
-  // Aeroradiometric Potassium
   potassium: {
     name: 'Aeroradiometric Potassium (%K)',
-    description: 'USGS aerial gamma-ray survey — Potassium percentage. High K can indicate alkaline igneous intrusions associated with carbonatite REE systems.',
-    url: 'https://mrdata.usgs.gov/services/radiometric-k',
-    wmsLayers: '0',
+    description: 'USGS aerial gamma-ray — Potassium %. High K = alkaline igneous intrusions associated with carbonatite REE systems.',
+    url: 'https://mrdata.usgs.gov/services/aerorad',
+    wmsLayers: 'Potassium',
     alpha: 0.55,
     category: 'radiometric',
     legend: 'Hot colors = HIGH potassium = alkaline intrusion indicator',
     source: 'USGS Aeroradiometric Compilation, Phillips et al.'
   },
-  // Magnetic Anomaly — shows subsurface igneous structures
+  // Composite color map: U=red, K=green, Th=blue — shows all 3 channels
+  radComposite: {
+    name: 'Radiometric Composite (Th+U+K)',
+    description: 'Color composite of all three radiometric channels. Red=Uranium, Green=Potassium, Blue=Thorium. White/bright = all three elevated = strongest anomaly.',
+    url: 'https://mrdata.usgs.gov/services/aerorad',
+    wmsLayers: 'CCM',
+    alpha: 0.55,
+    category: 'radiometric',
+    legend: 'Red=U, Green=K, Blue=Th. White = all elevated = hot zone',
+    source: 'USGS Aeroradiometric Compilation'
+  },
+
+  // ── GEOPHYSICAL ──
   magnetic: {
     name: 'Magnetic Anomaly (nT)',
-    description: 'USGS aeromagnetic survey — shows subsurface magnetic anomalies in nanotesla. Magnetic highs over Hicks Dome and the fault system reveal buried igneous/carbonatite structures that host REE.',
-    url: 'https://mrdata.usgs.gov/services/mag-color',
-    wmsLayers: '0',
+    description: 'North American Magnetic Anomaly Map — reveals buried igneous bodies, fault structures, and the deep carbonatite source beneath Hicks Dome.',
+    url: 'https://www.sciencebase.gov/arcgis/services/mrt/NAmag_webmerc/MapServer/WmsServer',
+    wmsLayers: '2',
     alpha: 0.5,
     category: 'geophysical',
     legend: 'Red/magenta = magnetic HIGH = buried igneous body',
-    source: 'USGS North American Magnetic Anomaly Map'
+    source: 'USGS/GSC North American Magnetic Anomaly Map'
   },
-  // Gravity Anomaly — deep crustal structure
   gravity: {
-    name: 'Gravity Anomaly (mGal)',
-    description: 'USGS Bouguer gravity anomaly. Gravity lows can indicate low-density carbonatite intrusions. The Hicks Dome structure produces a distinctive gravity signature.',
-    url: 'https://mrdata.usgs.gov/services/gravity-color',
-    wmsLayers: '0',
+    name: 'Bouguer Gravity Anomaly (mGal)',
+    description: 'Bouguer gravity anomaly — gravity lows indicate low-density carbonatite intrusions. Hicks Dome produces a distinctive gravity signature.',
+    url: 'https://mrdata.usgs.gov/services/gravity',
+    wmsLayers: 'bouguer',
     alpha: 0.5,
     category: 'geophysical',
-    legend: 'Blue = gravity LOW = possible low-density intrusion',
+    legend: 'Blue/cool = gravity LOW = possible low-density intrusion',
     source: 'USGS Gravity Database of the United States'
   },
-  // State Geologic Map — shows rock units and faults
+
+  // ── GEOLOGY ──
   geology: {
     name: 'Geologic Map (SGMC)',
-    description: 'USGS State Geologic Map Compilation — shows mapped geological units, faults, and contacts. Identifies the specific rock formations on the property and mapped fault traces.',
+    description: 'USGS State Geologic Map Compilation — mapped geological units, faults, and contacts.',
     url: 'https://mrdata.usgs.gov/services/sgmc2',
-    wmsLayers: '0',
+    wmsLayers: 'sgmc2contact,sgmc2structure',
     alpha: 0.6,
     category: 'geology',
-    legend: 'Colored polygons = mapped rock units & structures',
+    legend: 'Lines = mapped faults & contacts, colored = rock units',
     source: 'USGS State Geologic Map Compilation (SGMC v2)'
+  },
+
+  // ── MINERAL OCCURRENCES — the killer layers ──
+  fluorspar: {
+    name: 'Fluorspar Deposits (MRDS)',
+    description: 'USGS Mineral Resources Data System — every documented fluorspar occurrence. Shows the full extent of the IL-KY Fluorspar District and where our mines sit within it.',
+    url: 'https://mrdata.usgs.gov/services/mrds',
+    wmsLayers: 'mrds-F',
+    alpha: 0.9,
+    category: 'minerals',
+    legend: 'Dots = documented fluorspar deposits/mines',
+    source: 'USGS MRDS — Mineral Resources Data System'
+  },
+  reeCerium: {
+    name: 'REE Cerium Group Deposits',
+    description: 'USGS MRDS — documented Light Rare Earth Element (Cerium group: La, Ce, Pr, Nd) occurrences. Shows confirmed LREE across the district.',
+    url: 'https://mrdata.usgs.gov/services/mrds',
+    wmsLayers: 'mrds-REE_CE',
+    alpha: 0.9,
+    category: 'minerals',
+    legend: 'Dots = documented LREE (Ce group) occurrences',
+    source: 'USGS MRDS'
+  },
+  reeYttrium: {
+    name: 'REE Yttrium Group Deposits',
+    description: 'USGS MRDS — documented Heavy Rare Earth Element (Yttrium group: Y, Dy, Tb, Er) occurrences. These are the HIGH-VALUE HREEs — Hicks Dome is one of very few U.S. sources.',
+    url: 'https://mrdata.usgs.gov/services/mrds',
+    wmsLayers: 'mrds-REE_Y',
+    alpha: 0.9,
+    category: 'minerals',
+    legend: 'Dots = documented HREE (Y group) occurrences — highest value',
+    source: 'USGS MRDS'
+  },
+  carbonatites: {
+    name: 'Known Carbonatites',
+    description: 'USGS carbonatite database — mapped carbonatite intrusions worldwide. Shows Hicks Dome in context of global carbonatite-hosted REE deposits.',
+    url: 'https://mrdata.usgs.gov/services/carbonatite',
+    wmsLayers: 'carbonatite',
+    alpha: 0.9,
+    category: 'minerals',
+    legend: 'Dots = mapped carbonatite intrusions (host REE globally)',
+    source: 'USGS Global Carbonatite Database'
+  },
+  reeDeposits: {
+    name: 'REE Mines & Deposits',
+    description: 'USGS dedicated REE deposit database — all known rare earth element mines and deposits. Shows where U.S. REE resources are confirmed.',
+    url: 'https://mrdata.usgs.gov/services/ree',
+    wmsLayers: 'ree',
+    alpha: 0.9,
+    category: 'minerals',
+    legend: 'Dots = confirmed REE deposits and mines',
+    source: 'USGS REE Database'
+  },
+  mvtDeposits: {
+    name: 'MVT Lead-Zinc-Fluorite Deposits',
+    description: 'Mississippi Valley-Type deposits — the deposit classification for the IL-KY Fluorspar District. Shows the full extent of MVT mineralization in the region.',
+    url: 'https://mrdata.usgs.gov/services/sedexmvt',
+    wmsLayers: 'sedexmvt',
+    alpha: 0.9,
+    category: 'minerals',
+    legend: 'Dots = MVT deposits (same system as fluorspar district)',
+    source: 'USGS SedEx-MVT Database'
   }
 };
 
@@ -190,9 +262,17 @@ const layers = {
   thorium: false,
   uranium: false,
   potassium: false,
+  radComposite: false,
   magnetic: false,
   gravity: false,
-  geology: false
+  geology: false,
+  // Mineral occurrence layers
+  fluorspar: false,
+  reeCerium: false,
+  reeYttrium: false,
+  carbonatites: false,
+  reeDeposits: false,
+  mvtDeposits: false
 };
 
 let viewer;
@@ -597,13 +677,58 @@ function quickViewThorium() {
 function quickViewMagnetic() {
   if (!layers.magnetic) {
     layers.magnetic = true;
-    imageryLayerRefs.magnetic.show = true;
+    if (imageryLayerRefs.magnetic) imageryLayerRefs.magnetic.show = true;
     const cb = document.getElementById('cb-magnetic');
     if (cb) cb.checked = true;
     updateLayerCount();
     updateLegend();
   }
   flyTo(-88.40, 37.48, 40000, 2);
+}
+
+// Show all fluorspar + REE deposits across the district
+function quickViewFluorspar() {
+  ['fluorspar', 'reeCerium', 'reeYttrium', 'reeDeposits'].forEach(key => {
+    if (!layers[key]) {
+      layers[key] = true;
+      if (imageryLayerRefs[key]) imageryLayerRefs[key].show = true;
+      const cb = document.getElementById('cb-' + key);
+      if (cb) cb.checked = true;
+    }
+  });
+  updateLayerCount();
+  updateLegend();
+  flyTo(-88.40, 37.48, 60000, 2);
+}
+
+// Full intelligence view — thorium + REE + fluorspar + fault
+function quickViewFullIntel() {
+  ['thorium', 'fluorspar', 'reeYttrium', 'reeDeposits'].forEach(key => {
+    if (!layers[key]) {
+      layers[key] = true;
+      if (imageryLayerRefs[key]) imageryLayerRefs[key].show = true;
+      const cb = document.getElementById('cb-' + key);
+      if (cb) cb.checked = true;
+    }
+  });
+  // Make sure property features are on
+  ['property', 'mines', 'hicksDome', 'sparksHill', 'faultLine'].forEach(key => {
+    if (!layers[key]) {
+      layers[key] = true;
+      const cb = document.querySelector(`input[onchange="toggleLayer('${key}')"]`);
+      if (cb) cb.checked = true;
+    }
+  });
+  if (propertyEntity) propertyEntity.show = true;
+  mineEntities.forEach(e => e.show = true);
+  if (hicksDomeEntity) hicksDomeEntity.show = true;
+  if (hicksDomeRing) hicksDomeRing.show = true;
+  if (sparksHillEntity) sparksHillEntity.show = true;
+  if (faultEntity) faultEntity.show = true;
+  updateLayerCount();
+  updateLegend();
+  // Zoom out to see the full picture — property in context of the district
+  flyTo(-88.40, 37.47, 35000, 2);
 }
 
 // ---- Initialize ----
