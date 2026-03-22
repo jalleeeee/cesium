@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Intelligence Map — Allee CMIP</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>">
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.124/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.124/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <style>
+    /* Override Cesium info box styling */
+    .cesium-infoBox {
+      background: rgba(4, 13, 26, 0.95) !important;
+      border: 1px solid #1A2A44 !important;
+    }
+    .cesium-infoBox-title {
+      font-family: 'Rajdhani', sans-serif !important;
+      background: rgba(4, 13, 26, 0.95) !important;
+      color: #C9A84C !important;
+    }
+    .cesium-infoBox-iframe {
+      background: transparent !important;
+    }
+  </style>
+</head>
+<body class="map-page">
+  <script src="js/data.js"></script>
+
+  <div class="page-content">
+
+    <!-- Map Container -->
+    <div id="cesiumContainer"></div>
+
+    <!-- Placeholder (shown when no token) -->
+    <div class="map-placeholder" id="mapPlaceholder" style="display:none;">
+      <h2>3D Intelligence Map</h2>
+      <p>To enable the interactive Cesium 3D globe, add your free Cesium Ion access token.</p>
+      <code>// In js/map.js, line 4:<br>Cesium.Ion.defaultAccessToken = 'YOUR_TOKEN_HERE';</code>
+      <p class="mt-2" style="font-size:0.8rem;">Get a free token at <strong>ion.cesium.com/signup</strong></p>
+      <div class="mt-3">
+        <a href="index.html" class="btn btn-outline">&larr; Back to Overview</a>
+      </div>
+    </div>
+
+    <!-- Sidebar Toggle -->
+    <button class="sidebar-toggle" onclick="toggleSidebar()" id="sidebarToggle">&#9776; Panel</button>
+
+    <!-- Right Sidebar -->
+    <div class="map-sidebar" id="mapSidebar">
+
+      <div class="sidebar-section">
+        <h3>Property Quick Stats</h3>
+        <div class="sidebar-stat">
+          <span class="sidebar-stat-label">Acreage</span>
+          <span class="sidebar-stat-value">40 ACRES</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="sidebar-stat-label">Mines</span>
+          <span class="sidebar-stat-value">3 DOCUMENTED</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="sidebar-stat-label">Production</span>
+          <span class="sidebar-stat-value">8,000+ TONS</span>
+        </div>
+        <div class="sidebar-stat">
+          <span class="sidebar-stat-label">Unleased Since</span>
+          <span class="sidebar-stat-value">1987</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Layer Controls</h3>
+        <label class="layer-toggle">
+          <input type="checkbox" checked onchange="toggleLayer('property')"> Property Boundary (40 ac)
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" checked onchange="toggleLayer('mines')"> Mine Markers (3)
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" checked onchange="toggleLayer('hicksDome')"> Hicks Dome REE
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" checked onchange="toggleLayer('sparksHill')"> Sparks Hill Diatreme
+        </label>
+        <label class="layer-toggle">
+          <input type="checkbox" checked onchange="toggleLayer('faultLine')"> Illinois Furnace Fault
+        </label>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Distance from Property</h3>
+        <div class="distance-row">
+          <span class="distance-label">Hicks Dome REE</span>
+          <span class="distance-value">7.8 mi &rarr;</span>
+        </div>
+        <div class="distance-row">
+          <span class="distance-label">Sparks Hill</span>
+          <span class="distance-value">3.1 mi &rarr;</span>
+        </div>
+        <div class="distance-row">
+          <span class="distance-label">Rosiclare Mine</span>
+          <span class="distance-value">4.2 mi &rarr;</span>
+        </div>
+        <div class="distance-row">
+          <span class="distance-label">Cave-In-Rock</span>
+          <span class="distance-value">11.2 mi &rarr;</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3>Active Data Sources</h3>
+        <div style="font-size:0.7rem; color:var(--text-muted); line-height:1.7;">
+          <div>ISGS Mine Inventory (1988)</div>
+          <div>Terra Nova 2024 — Trela et al.</div>
+          <div>ISGS Circular 588 — Denny 2017</div>
+          <div>USGS Earth MRI SE Illinois</div>
+          <div>KGS RI 66 — Lukoczki 2022</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Status Bar -->
+    <div class="map-status-bar">
+      <div>
+        LAT: <span id="statusLat">--</span> &nbsp;|&nbsp;
+        LON: <span id="statusLon">--</span> &nbsp;|&nbsp;
+        ELEVATION: <span id="statusElev">-- ft</span>
+      </div>
+      <div>
+        LAYERS: <span id="layerCount">5 ACTIVE</span> &nbsp;|&nbsp;
+        ALLEE CMIP v1.0
+      </div>
+    </div>
+
+  </div>
+
+  <script src="js/nav.js"></script>
+  <script src="js/map.js"></script>
+</body>
+</html>
