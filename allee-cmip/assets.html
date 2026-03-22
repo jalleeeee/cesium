@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Mine Simulation — Allee CMIP</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◈</text></svg>">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    /* ---- Assets page overrides ---- */
+    .sim-wrap {
+      position: relative;
+      width: 100%;
+      height: 75vh;
+      min-height: 500px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #020810;
+      margin-bottom: 2rem;
+    }
+    .sim-wrap canvas { display: block; width: 100%; height: 100%; }
+
+    /* HUD overlay */
+    .sim-hud {
+      position: absolute; top: 1rem; left: 1rem;
+      font-family: var(--font-mono); font-size: 0.7rem;
+      color: var(--text-dim); text-transform: uppercase;
+      letter-spacing: 0.1em; pointer-events: none;
+      line-height: 1.8;
+    }
+    .sim-hud b { color: var(--gold); font-weight: 500; }
+
+    /* Legend */
+    .sim-legend {
+      position: absolute; bottom: 1rem; left: 1rem;
+      display: flex; flex-wrap: wrap; gap: 1rem;
+      font-family: var(--font-mono); font-size: 0.65rem;
+      color: var(--text-dim); text-transform: uppercase;
+      letter-spacing: 0.08em; pointer-events: none;
+    }
+    .sim-legend span { display: flex; align-items: center; gap: 0.4rem; }
+    .sim-legend i {
+      display: inline-block; width: 12px; height: 12px;
+      border-radius: 2px; flex-shrink: 0;
+    }
+
+    /* Controls hint */
+    .sim-controls {
+      position: absolute; bottom: 1rem; right: 1rem;
+      font-family: var(--font-mono); font-size: 0.6rem;
+      color: var(--text-muted); text-transform: uppercase;
+      letter-spacing: 0.08em; pointer-events: none;
+      text-align: right; line-height: 1.8;
+    }
+
+    /* Callout box */
+    .sim-callout {
+      position: absolute; top: 1rem; right: 1rem;
+      max-width: 280px;
+      background: rgba(10, 22, 40, 0.92);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      font-family: var(--font-mono); font-size: 0.7rem;
+      color: var(--text-dim); line-height: 1.7;
+      pointer-events: none;
+    }
+    .sim-callout .big {
+      font-family: var(--font-display);
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--red); line-height: 1.1;
+      margin-bottom: 0.4rem;
+    }
+    .sim-callout .sub {
+      color: var(--green); font-weight: 500;
+      margin-top: 0.5rem;
+    }
+
+    /* Depth labels inside canvas are drawn via sprites — no extra CSS needed */
+
+    /* Takeaway cards */
+    .takeaway-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 768px) { .takeaway-grid { grid-template-columns: 1fr; } }
+    .takeaway-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1.5rem;
+    }
+    .takeaway-card h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 0.75rem;
+    }
+    .takeaway-card .num {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .takeaway-card p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      margin: 0;
+    }
+    .num-red { color: var(--red); }
+    .num-green { color: var(--green); }
+    .num-gold { color: var(--gold); }
+
+    /* reset buttons */
+    .sim-btn-row {
+      position: absolute; top: 50%; right: 1rem;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 0.5rem;
+      z-index: 5;
+    }
+    .sim-btn {
+      background: rgba(10, 22, 40, 0.85);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--gold);
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.5rem 0.7rem;
+      cursor: pointer;
+      pointer-events: all;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .sim-btn:hover { border-color: var(--gold); color: var(--white); }
+  </style>
+</head>
+<body>
+  <script src="js/data.js"></script>
+
+  <div class="page-content">
+
+    <section class="hero" style="padding-bottom:1.5rem; margin-bottom:2rem;">
+      <h1 class="hero-title" style="font-size:2rem;">3D Mine Cross-Section</h1>
+      <p class="hero-subtitle">Interactive simulation of historical mine workings vs. untested deposit depth</p>
+    </section>
+
+    <h2>The Big Picture</h2>
+    <h3>Past miners scratched the surface. The real deposits sit far below where they stopped.</h3>
+
+    <!-- 3D SIMULATION -->
+    <div class="sim-wrap" id="sim-container">
+      <!-- HUD -->
+      <div class="sim-hud">
+        <b>DUBOIS MINE COMPLEX</b><br>
+        Section 19 &middot; T12S &middot; R8E<br>
+        Illinois Furnace Fault Zone
+      </div>
+
+      <!-- Callout -->
+      <div class="sim-callout">
+        <div class="big">88% UNTESTED</div>
+        Miners reached only ~100 ft.<br>
+        The fault zone extends 850+ ft deep.<br>
+        <span class="sub">Zero REE sampling ever conducted.</span>
+      </div>
+
+      <!-- Legend -->
+      <div class="sim-legend">
+        <span><i style="background:#8B6914"></i> Surface</span>
+        <span><i style="background:#C9A84C"></i> Mine Shafts</span>
+        <span><i style="background:#FF4444"></i> Deepest Mining (100 ft)</span>
+        <span><i style="background:#00FF88; opacity:0.5"></i> REE Target Zone</span>
+        <span><i style="background:#3B82F6; opacity:0.5"></i> Fault Zone</span>
+      </div>
+
+      <!-- Controls hint -->
+      <div class="sim-controls">
+        Drag to rotate<br>
+        Scroll to zoom<br>
+        Right-drag to pan
+      </div>
+
+      <!-- View buttons -->
+      <div class="sim-btn-row">
+        <button class="sim-btn" onclick="viewFront()">Front</button>
+        <button class="sim-btn" onclick="viewSide()">Side</button>
+        <button class="sim-btn" onclick="viewTop()">Top</button>
+        <button class="sim-btn" onclick="viewReset()">Reset</button>
+      </div>
+    </div>
+
+    <!-- TAKEAWAY CARDS -->
+    <div class="takeaway-grid">
+      <div class="takeaway-card">
+        <h3>Maximum Depth Mined</h3>
+        <div class="num num-gold">100 ft</div>
+        <p>The Indiana Mine — the deepest on the property — reached only 100 feet with a shaft, 2 drift levels, and a cross-cut. System untested below this depth.</p>
+      </div>
+      <div class="takeaway-card">
+        <h3>Fault Zone Displacement</h3>
+        <div class="num num-red">850 ft</div>
+        <p>The Illinois Furnace Fault has 850 feet of documented vertical displacement — the REE transport conduit extends far deeper than any mining ever reached.</p>
+      </div>
+      <div class="takeaway-card">
+        <h3>REE Samples Taken</h3>
+        <div class="num num-green">0</div>
+        <p>Despite sitting on the same fault system that delivered REEs to Hicks Dome (12-65M tons), this property has never been tested for rare earth elements.</p>
+      </div>
+    </div>
+
+    <div style="margin-top:3rem;">
+      <h2>What You're Looking At</h2>
+      <p>This cross-section model shows the three documented mines on the Allee property — Dubois, Indiana, and Lavender — drawn to scale based on ISGS mine inventory data sheets (July 7, 1988).</p>
+
+      <p>The <strong style="color:#C9A84C">gold shafts</strong> show where early 1900s miners actually dug. They were mining fluorspar (calcium fluoride) — a valuable industrial mineral, but they had no way to test for rare earth elements.</p>
+
+      <p>The <strong style="color:#FF4444">red line</strong> marks the deepest anyone ever went: 100 feet at the Indiana Mine.</p>
+
+      <p>The <strong style="color:#00FF88">green zone</strong> below represents the untested REE target — the depth range where rare earth element deposits are expected based on the 2024 Terra Nova research by Trela, Freiburg, and Gazel. Their work showed that REE-bearing brine-melts traveled upward from a deep carbonatite source through brecciated fault pathways — including the Illinois Furnace Fault that crosses directly through this property.</p>
+
+      <p>The <strong style="color:#3B82F6">blue plane</strong> represents the Illinois Furnace Fault Zone itself — 850 feet of vertical displacement, cutting through the entire property at N60-65°E.</p>
+
+      <p style="color:var(--gold); font-weight:500; font-size:1.1rem; margin-top:1.5rem;">Bottom line: they mined the top 12%. The other 88% — where the REEs should be — has never been touched.</p>
+    </div>
+
+  </div><!-- /page-content -->
+
+  <script src="js/nav.js"></script>
+
+  <!-- ============================================================
+       THREE.JS MINE SIMULATION
+       ============================================================ -->
+  <script>
+  (function() {
+    // ---- CONSTANTS (all in scene units; 1 unit = 1 foot) ----
+    const SURFACE_Y     = 0;
+    const FAULT_DEPTH   = -850;   // Illinois Furnace Fault displacement
+    const GROUND_SIZE   = 600;    // width/depth of terrain slab
+    const SHAFT_RADIUS  = 4;
+    const DRIFT_HEIGHT  = 8;
+    const DRIFT_WIDTH   = 6;
+
+    // Mine data (depths negative = below surface)
+    const MINES = [
+      {
+        name: 'Dubois Mine',
+        x: -80, z: 40,
+        shaftTop: 0, shaftBottom: -100,
+        drifts: [
+          { y: -60, length: 50, angle: Math.PI * 0.35 }  // N60°E
+        ],
+        label: 'DUBOIS\n45-100 ft\n1,000-2,000 tons'
+      },
+      {
+        name: 'Indiana Mine',
+        x: 40, z: -30,
+        shaftTop: 0, shaftBottom: -100,
+        drifts: [
+          { y: -50, length: 60, angle: Math.PI * 0.09 },  // N16°E drift level 1
+          { y: -80, length: 50, angle: Math.PI * 0.09 },  // drift level 2
+          { y: -100, length: 130, angle: Math.PI * 0.5 }  // cross-cut at 100 ft
+        ],
+        // Second parallel vein shaft (130 ft apart)
+        secondShaft: { dx: 100, dz: 50, bottom: -70 },
+        label: 'INDIANA\n100 ft deep\n5,900 tons'
+      },
+      {
+        name: 'Lavender Mine',
+        x: -120, z: -60,
+        shaftTop: 0, shaftBottom: -40,
+        drifts: [],
+        label: 'LAVENDER\n40 ft\nMinor production'
+      }
+    ];
+
+    // ---- SCENE SETUP ----
+    const container = document.getElementById('sim-container');
+    const W = container.clientWidth;
+    const H = container.clientHeight;
+
+    const scene    = new THREE.Scene();
+    scene.background = new THREE.Color(0x020810);
+    scene.fog = new THREE.FogExp2(0x020810, 0.0008);
+
+    const camera   = new THREE.PerspectiveCamera(50, W / H, 1, 5000);
+    camera.position.set(350, 150, 450);
+    camera.lookAt(0, -200, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.insertBefore(renderer.domElement, container.firstChild);
+
+    // ---- LIGHTS ----
+    const ambient = new THREE.AmbientLight(0x334466, 0.6);
+    scene.add(ambient);
+    const dirLight = new THREE.DirectionalLight(0xffeedd, 0.8);
+    dirLight.position.set(200, 400, 300);
+    scene.add(dirLight);
+    const pointLight = new THREE.PointLight(0xC9A84C, 0.4, 800);
+    pointLight.position.set(0, 50, 0);
+    scene.add(pointLight);
+
+    // ---- HELPERS ----
+    function makeMat(color, opts) {
+      return new THREE.MeshPhongMaterial({
+        color: color,
+        transparent: opts && opts.opacity !== undefined,
+        opacity: opts && opts.opacity !== undefined ? opts.opacity : 1,
+        side: opts && opts.doubleSide ? THREE.DoubleSide : THREE.FrontSide,
+        wireframe: opts && opts.wireframe || false
+      });
+    }
+
+    // ---- GROUND SURFACE ----
+    const groundGeo = new THREE.BoxGeometry(GROUND_SIZE, 12, GROUND_SIZE);
+    const groundMat = makeMat(0x8B6914, { opacity: 0.85 });
+    const ground = new THREE.Mesh(groundGeo, groundMat);
+    ground.position.set(0, SURFACE_Y - 6, 0);
+    scene.add(ground);
+
+    // Surface grid lines
+    const gridHelper = new THREE.GridHelper(GROUND_SIZE, 20, 0x5a4510, 0x3a2d0a);
+    gridHelper.position.y = SURFACE_Y + 1;
+    scene.add(gridHelper);
+
+    // ---- UNDERGROUND ROCK (translucent block so you see depth) ----
+    const rockGeo = new THREE.BoxGeometry(GROUND_SIZE, Math.abs(FAULT_DEPTH), GROUND_SIZE);
+    const rockMat = makeMat(0x1a1a2e, { opacity: 0.08 });
+    const rock = new THREE.Mesh(rockGeo, rockMat);
+    rock.position.set(0, FAULT_DEPTH / 2, 0);
+    scene.add(rock);
+
+    // ---- DEPTH RULER (left side) ----
+    const rulerMat = new THREE.LineBasicMaterial({ color: 0x64748B });
+    for (let d = 0; d >= FAULT_DEPTH; d -= 100) {
+      // horizontal tick
+      const tickGeo = new THREE.BufferGeometry().setFromPoints([
+        new THREE.Vector3(-GROUND_SIZE/2 - 20, d, -GROUND_SIZE/2),
+        new THREE.Vector3(-GROUND_SIZE/2 + 10, d, -GROUND_SIZE/2)
+      ]);
+      scene.add(new THREE.Line(tickGeo, rulerMat));
+    }
+    // vertical ruler line
+    const vLineGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(-GROUND_SIZE/2 - 10, 0, -GROUND_SIZE/2),
+      new THREE.Vector3(-GROUND_SIZE/2 - 10, FAULT_DEPTH, -GROUND_SIZE/2)
+    ]);
+    scene.add(new THREE.Line(vLineGeo, rulerMat));
+
+    // ---- MINE SHAFTS & DRIFTS ----
+    const shaftMat = makeMat(0xC9A84C);
+    const driftMat = makeMat(0xC9A84C, { opacity: 0.8 });
+
+    MINES.forEach(function(mine) {
+      // Main shaft (vertical cylinder)
+      var shaftLen = Math.abs(mine.shaftBottom - mine.shaftTop);
+      var shaftGeo = new THREE.CylinderGeometry(SHAFT_RADIUS, SHAFT_RADIUS, shaftLen, 12);
+      var shaft = new THREE.Mesh(shaftGeo, shaftMat);
+      shaft.position.set(mine.x, mine.shaftTop - shaftLen/2, mine.z);
+      scene.add(shaft);
+
+      // Shaft headframe (small box on surface)
+      var headGeo = new THREE.BoxGeometry(14, 20, 14);
+      var headMat = makeMat(0x8B7333);
+      var head = new THREE.Mesh(headGeo, headMat);
+      head.position.set(mine.x, SURFACE_Y + 10, mine.z);
+      scene.add(head);
+
+      // Drifts (horizontal tunnels)
+      mine.drifts.forEach(function(drift) {
+        var driftGeo = new THREE.BoxGeometry(DRIFT_WIDTH, DRIFT_HEIGHT, drift.length);
+        var d = new THREE.Mesh(driftGeo, driftMat);
+        d.position.set(mine.x, drift.y, mine.z + drift.length/2);
+        d.rotation.y = drift.angle;
+        scene.add(d);
+      });
+
+      // Second shaft (Indiana Mine parallel vein)
+      if (mine.secondShaft) {
+        var s2Len = Math.abs(mine.secondShaft.bottom);
+        var s2Geo = new THREE.CylinderGeometry(SHAFT_RADIUS * 0.8, SHAFT_RADIUS * 0.8, s2Len, 10);
+        var s2 = new THREE.Mesh(s2Geo, shaftMat);
+        s2.position.set(mine.x + mine.secondShaft.dx, -s2Len/2, mine.z + mine.secondShaft.dz);
+        scene.add(s2);
+
+        var h2Geo = new THREE.BoxGeometry(12, 16, 12);
+        var h2 = new THREE.Mesh(h2Geo, headMat);
+        h2.position.set(mine.x + mine.secondShaft.dx, SURFACE_Y + 8, mine.z + mine.secondShaft.dz);
+        scene.add(h2);
+      }
+    });
+
+    // ---- RED LINE: DEEPEST MINING (100 ft) ----
+    var redLineMat = new THREE.LineBasicMaterial({ color: 0xFF4444, linewidth: 2 });
+    var rlPoints = [
+      new THREE.Vector3(-GROUND_SIZE/2, -100, -GROUND_SIZE/2),
+      new THREE.Vector3(GROUND_SIZE/2, -100, -GROUND_SIZE/2),
+      new THREE.Vector3(GROUND_SIZE/2, -100, GROUND_SIZE/2),
+      new THREE.Vector3(-GROUND_SIZE/2, -100, GROUND_SIZE/2),
+      new THREE.Vector3(-GROUND_SIZE/2, -100, -GROUND_SIZE/2)
+    ];
+    var rlGeo = new THREE.BufferGeometry().setFromPoints(rlPoints);
+    scene.add(new THREE.Line(rlGeo, redLineMat));
+
+    // Red translucent plane at 100 ft
+    var redPlaneGeo = new THREE.PlaneGeometry(GROUND_SIZE, GROUND_SIZE);
+    var redPlaneMat = makeMat(0xFF4444, { opacity: 0.06, doubleSide: true });
+    var redPlane = new THREE.Mesh(redPlaneGeo, redPlaneMat);
+    redPlane.rotation.x = -Math.PI / 2;
+    redPlane.position.y = -100;
+    scene.add(redPlane);
+
+    // ---- GREEN ZONE: REE TARGET (100 ft to 850 ft) ----
+    var targetHeight = 750; // 850 - 100
+    var targetGeo = new THREE.BoxGeometry(GROUND_SIZE * 0.85, targetHeight, GROUND_SIZE * 0.85);
+    var targetMat = makeMat(0x00FF88, { opacity: 0.045 });
+    var targetMesh = new THREE.Mesh(targetGeo, targetMat);
+    targetMesh.position.set(0, -100 - targetHeight/2, 0);
+    scene.add(targetMesh);
+
+    // Green wireframe edges
+    var targetEdges = new THREE.EdgesGeometry(targetGeo);
+    var targetLine = new THREE.LineSegments(targetEdges, new THREE.LineBasicMaterial({ color: 0x00FF88, opacity: 0.3, transparent: true }));
+    targetLine.position.copy(targetMesh.position);
+    scene.add(targetLine);
+
+    // ---- FAULT ZONE (angled blue plane) ----
+    var faultGeo = new THREE.PlaneGeometry(GROUND_SIZE * 1.2, Math.abs(FAULT_DEPTH) * 1.1);
+    var faultMat = makeMat(0x3B82F6, { opacity: 0.08, doubleSide: true });
+    var fault = new THREE.Mesh(faultGeo, faultMat);
+    // N60°E strike = roughly 30° from north in scene coords
+    fault.rotation.y = Math.PI * 0.33;
+    fault.rotation.x = Math.PI * 0.03; // slight tilt — nearly vertical
+    fault.position.set(0, FAULT_DEPTH / 2, 0);
+    scene.add(fault);
+
+    // Fault wireframe
+    var faultEdges = new THREE.EdgesGeometry(faultGeo);
+    var faultWire = new THREE.LineSegments(faultEdges, new THREE.LineBasicMaterial({ color: 0x3B82F6, opacity: 0.25, transparent: true }));
+    faultWire.rotation.copy(fault.rotation);
+    faultWire.position.copy(fault.position);
+    scene.add(faultWire);
+
+    // ---- TEXT LABELS (Canvas textures as sprites) ----
+    function makeLabel(text, position, color, size) {
+      var canvas = document.createElement('canvas');
+      var ctx = canvas.getContext('2d');
+      canvas.width = 512;
+      canvas.height = 256;
+      ctx.clearRect(0, 0, 512, 256);
+
+      var lines = text.split('\n');
+      ctx.font = 'bold ' + (size || 28) + 'px monospace';
+      ctx.fillStyle = color || '#C9A84C';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      lines.forEach(function(line, i) {
+        ctx.fillText(line, 256, 80 + i * (size ? size + 8 : 36));
+      });
+
+      var tex = new THREE.CanvasTexture(canvas);
+      var mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthTest: false });
+      var sprite = new THREE.Sprite(mat);
+      sprite.position.copy(position);
+      sprite.scale.set(120, 60, 1);
+      scene.add(sprite);
+      return sprite;
+    }
+
+    // Mine name labels (above surface)
+    MINES.forEach(function(mine) {
+      makeLabel(mine.label, new THREE.Vector3(mine.x, 60, mine.z), '#C9A84C', 24);
+    });
+
+    // Depth labels on ruler
+    for (var d = 0; d >= FAULT_DEPTH; d -= 100) {
+      var depthText = Math.abs(d) + ' ft';
+      if (d === 0) depthText = 'SURFACE';
+      if (d === -100) depthText = '100 ft — DEEPEST MINING';
+      if (d === -850) depthText = '850 ft — FAULT DISPLACEMENT';
+      var labelColor = d === -100 ? '#FF4444' : d === -850 ? '#3B82F6' : '#64748B';
+      makeLabel(depthText,
+        new THREE.Vector3(-GROUND_SIZE/2 - 80, d, -GROUND_SIZE/2),
+        labelColor, 22
+      );
+    }
+
+    // Zone labels
+    makeLabel('MINED ZONE\n(top 12%)',
+      new THREE.Vector3(GROUND_SIZE/2 + 60, -50, 0), '#C9A84C', 22);
+
+    makeLabel('UNTESTED REE TARGET\n(88% of fault depth)\nNever sampled',
+      new THREE.Vector3(GROUND_SIZE/2 + 80, -475, 0), '#00FF88', 22);
+
+    makeLabel('ILLINOIS FURNACE\nFAULT ZONE\n850 ft displacement\nN60°-65°E',
+      new THREE.Vector3(-40, -600, GROUND_SIZE/2 + 40), '#3B82F6', 20);
+
+    // ---- ORBIT CONTROLS (manual implementation — no import needed) ----
+    var isDragging = false;
+    var isRightDrag = false;
+    var prevMouse = { x: 0, y: 0 };
+    var spherical = { theta: 0.78, phi: 1.1, radius: 750 };
+    var target = new THREE.Vector3(0, -200, 0);
+
+    function updateCamera() {
+      camera.position.x = target.x + spherical.radius * Math.sin(spherical.phi) * Math.cos(spherical.theta);
+      camera.position.y = target.y + spherical.radius * Math.cos(spherical.phi);
+      camera.position.z = target.z + spherical.radius * Math.sin(spherical.phi) * Math.sin(spherical.theta);
+      camera.lookAt(target);
+    }
+    updateCamera();
+
+    renderer.domElement.addEventListener('mousedown', function(e) {
+      isDragging = true;
+      isRightDrag = e.button === 2;
+      prevMouse.x = e.clientX;
+      prevMouse.y = e.clientY;
+    });
+    renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+    window.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      var dx = e.clientX - prevMouse.x;
+      var dy = e.clientY - prevMouse.y;
+      prevMouse.x = e.clientX;
+      prevMouse.y = e.clientY;
+
+      if (isRightDrag) {
+        // Pan
+        var panScale = spherical.radius * 0.002;
+        target.x -= dx * panScale * Math.cos(spherical.theta);
+        target.z += dx * panScale * Math.sin(spherical.theta);
+        target.y += dy * panScale;
+      } else {
+        // Orbit
+        spherical.theta -= dx * 0.005;
+        spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + dy * 0.005));
+      }
+      updateCamera();
+    });
+
+    window.addEventListener('mouseup', function() { isDragging = false; isRightDrag = false; });
+
+    renderer.domElement.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      spherical.radius = Math.max(200, Math.min(2000, spherical.radius + e.deltaY * 0.5));
+      updateCamera();
+    }, { passive: false });
+
+    // Touch support
+    var touchStart = {};
+    var touchDist = 0;
+    renderer.domElement.addEventListener('touchstart', function(e) {
+      if (e.touches.length === 1) {
+        touchStart.x = e.touches[0].clientX;
+        touchStart.y = e.touches[0].clientY;
+      } else if (e.touches.length === 2) {
+        var dx = e.touches[0].clientX - e.touches[1].clientX;
+        var dy = e.touches[0].clientY - e.touches[1].clientY;
+        touchDist = Math.sqrt(dx*dx + dy*dy);
+      }
+    });
+    renderer.domElement.addEventListener('touchmove', function(e) {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        var dx = e.touches[0].clientX - touchStart.x;
+        var dy = e.touches[0].clientY - touchStart.y;
+        touchStart.x = e.touches[0].clientX;
+        touchStart.y = e.touches[0].clientY;
+        spherical.theta -= dx * 0.005;
+        spherical.phi = Math.max(0.1, Math.min(Math.PI - 0.1, spherical.phi + dy * 0.005));
+        updateCamera();
+      } else if (e.touches.length === 2) {
+        var dx2 = e.touches[0].clientX - e.touches[1].clientX;
+        var dy2 = e.touches[0].clientY - e.touches[1].clientY;
+        var newDist = Math.sqrt(dx2*dx2 + dy2*dy2);
+        spherical.radius = Math.max(200, Math.min(2000, spherical.radius - (newDist - touchDist) * 2));
+        touchDist = newDist;
+        updateCamera();
+      }
+    }, { passive: false });
+
+    // ---- ANIMATION ----
+    // Gentle pulse on the green target zone
+    var clock = new THREE.Clock();
+
+    function animate() {
+      requestAnimationFrame(animate);
+      var t = clock.getElapsedTime();
+
+      // Pulse green zone opacity
+      targetMat.opacity = 0.035 + Math.sin(t * 1.5) * 0.015;
+
+      // Pulse fault zone
+      faultMat.opacity = 0.06 + Math.sin(t * 1.2 + 1) * 0.02;
+
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    // ---- RESIZE ----
+    window.addEventListener('resize', function() {
+      var w = container.clientWidth;
+      var h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+
+    // ---- VIEW PRESETS ----
+    window.viewFront = function() {
+      spherical.theta = 0;
+      spherical.phi = Math.PI / 2;
+      spherical.radius = 800;
+      target.set(0, -300, 0);
+      updateCamera();
+    };
+    window.viewSide = function() {
+      spherical.theta = Math.PI / 2;
+      spherical.phi = Math.PI / 2;
+      spherical.radius = 800;
+      target.set(0, -300, 0);
+      updateCamera();
+    };
+    window.viewTop = function() {
+      spherical.theta = 0;
+      spherical.phi = 0.15;
+      spherical.radius = 900;
+      target.set(0, -50, 0);
+      updateCamera();
+    };
+    window.viewReset = function() {
+      spherical.theta = 0.78;
+      spherical.phi = 1.1;
+      spherical.radius = 750;
+      target.set(0, -200, 0);
+      updateCamera();
+    };
+  })();
+  </script>
+</body>
+</html>

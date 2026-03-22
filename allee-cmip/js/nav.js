@@ -13,6 +13,7 @@
       <a href="map.html">3D Map</a>
       <a href="science.html">Science</a>
       <a href="documents.html">Documents</a>
+      <a href="assets.html">Assets</a>
       <a href="proposal.html">Proposal</a>
     </div>
     <div class="nav-meta">Section 19 &middot; T12S &middot; R8E &middot; Hardin County, IL</div>
