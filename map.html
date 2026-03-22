@@ -70,7 +70,7 @@
       </div>
 
       <div class="sidebar-section">
-        <h3>Layer Controls</h3>
+        <h3>Property &amp; Features</h3>
         <label class="layer-toggle">
           <input type="checkbox" checked onchange="toggleLayer('property')"> Property Boundary (40 ac)
         </label>
@@ -86,6 +86,109 @@
         <label class="layer-toggle">
           <input type="checkbox" checked onchange="toggleLayer('faultLine')"> Illinois Furnace Fault
         </label>
+      </div>
+
+      <!-- USGS GEOPHYSICAL OVERLAYS -->
+      <div class="sidebar-section">
+        <h3 style="color:#FF4444;">&#9762; Radiometric Overlays</h3>
+        <div style="font-size:0.6rem;color:#94A3B8;margin-bottom:8px;line-height:1.4;">
+          USGS aerial gamma-ray surveys. Shows underground radioactivity from aircraft measurements. Thorium = direct REE indicator.
+        </div>
+
+        <label class="layer-toggle" style="font-weight:500;color:#FF4444;">
+          <input type="checkbox" id="cb-thorium" onchange="toggleLayer('thorium')">
+          &#9762; Thorium (eTh) — REE INDICATOR
+        </label>
+        <div class="overlay-slider" style="padding-left:1.4rem;margin-bottom:6px;">
+          <input type="range" min="0.1" max="1" step="0.05" value="0.55"
+                 oninput="setOverlayOpacity('thorium', this.value)"
+                 style="width:100%;height:4px;accent-color:#FF4444;">
+          <span id="opacity-val-thorium" style="font-size:0.6rem;color:#64748B;">55%</span>
+        </div>
+
+        <label class="layer-toggle">
+          <input type="checkbox" id="cb-uranium" onchange="toggleLayer('uranium')">
+          &#9762; Uranium (eU) — Hydrothermal
+        </label>
+        <div class="overlay-slider" style="padding-left:1.4rem;margin-bottom:6px;">
+          <input type="range" min="0.1" max="1" step="0.05" value="0.55"
+                 oninput="setOverlayOpacity('uranium', this.value)"
+                 style="width:100%;height:4px;accent-color:#F59E0B;">
+          <span id="opacity-val-uranium" style="font-size:0.6rem;color:#64748B;">55%</span>
+        </div>
+
+        <label class="layer-toggle">
+          <input type="checkbox" id="cb-potassium" onchange="toggleLayer('potassium')">
+          &#9762; Potassium (%K) — Alkaline
+        </label>
+        <div class="overlay-slider" style="padding-left:1.4rem;margin-bottom:6px;">
+          <input type="range" min="0.1" max="1" step="0.05" value="0.55"
+                 oninput="setOverlayOpacity('potassium', this.value)"
+                 style="width:100%;height:4px;accent-color:#F59E0B;">
+          <span id="opacity-val-potassium" style="font-size:0.6rem;color:#64748B;">55%</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 style="color:#3B82F6;">&#9674; Geophysical Overlays</h3>
+        <div style="font-size:0.6rem;color:#94A3B8;margin-bottom:8px;line-height:1.4;">
+          Reveals subsurface structures — buried igneous bodies, fault systems, and the deep carbonatite source.
+        </div>
+
+        <label class="layer-toggle">
+          <input type="checkbox" id="cb-magnetic" onchange="toggleLayer('magnetic')">
+          &#9674; Magnetic Anomaly — Buried Intrusions
+        </label>
+        <div class="overlay-slider" style="padding-left:1.4rem;margin-bottom:6px;">
+          <input type="range" min="0.1" max="1" step="0.05" value="0.5"
+                 oninput="setOverlayOpacity('magnetic', this.value)"
+                 style="width:100%;height:4px;accent-color:#3B82F6;">
+          <span id="opacity-val-magnetic" style="font-size:0.6rem;color:#64748B;">50%</span>
+        </div>
+
+        <label class="layer-toggle">
+          <input type="checkbox" id="cb-gravity" onchange="toggleLayer('gravity')">
+          &#9674; Gravity Anomaly — Deep Structure
+        </label>
+        <div class="overlay-slider" style="padding-left:1.4rem;margin-bottom:6px;">
+          <input type="range" min="0.1" max="1" step="0.05" value="0.5"
+                 oninput="setOverlayOpacity('gravity', this.value)"
+                 style="width:100%;height:4px;accent-color:#3B82F6;">
+          <span id="opacity-val-gravity" style="font-size:0.6rem;color:#64748B;">50%</span>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h3 style="color:#00FF88;">&#9632; Geology Overlay</h3>
+
+        <label class="layer-toggle">
+          <input type="checkbox" id="cb-geology" onchange="toggleLayer('geology')">
+          &#9632; USGS Geologic Map (SGMC)
+        </label>
+        <div class="overlay-slider" style="padding-left:1.4rem;margin-bottom:6px;">
+          <input type="range" min="0.1" max="1" step="0.05" value="0.6"
+                 oninput="setOverlayOpacity('geology', this.value)"
+                 style="width:100%;height:4px;accent-color:#00FF88;">
+          <span id="opacity-val-geology" style="font-size:0.6rem;color:#64748B;">60%</span>
+        </div>
+      </div>
+
+      <!-- QUICK VIEW BUTTONS -->
+      <div class="sidebar-section">
+        <h3>Quick Views</h3>
+        <button onclick="quickViewThorium()" style="width:100%;padding:8px;margin-bottom:6px;background:rgba(255,68,68,0.15);border:1px solid rgba(255,68,68,0.4);color:#FF4444;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;border-radius:4px;cursor:pointer;">
+          &#9762; Show Thorium + Zoom Regional
+        </button>
+        <button onclick="quickViewMagnetic()" style="width:100%;padding:8px;margin-bottom:6px;background:rgba(59,130,246,0.15);border:1px solid rgba(59,130,246,0.4);color:#3B82F6;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;border-radius:4px;cursor:pointer;">
+          &#9674; Show Magnetic + Zoom Regional
+        </button>
+        <button onclick="flyTo(-88.38205, 37.44795, 5000, 2)" style="width:100%;padding:8px;background:rgba(201,168,76,0.15);border:1px solid rgba(201,168,76,0.4);color:#C9A84C;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:0.75rem;letter-spacing:0.06em;text-transform:uppercase;border-radius:4px;cursor:pointer;">
+          &#9670; Fly to Property
+        </button>
+      </div>
+
+      <!-- ACTIVE LEGEND (dynamic, shows when overlays enabled) -->
+      <div class="sidebar-section" id="activeLegend" style="display:none;">
       </div>
 
       <div class="sidebar-section">
@@ -110,12 +213,16 @@
 
       <div class="sidebar-section">
         <h3>Active Data Sources</h3>
-        <div style="font-size:0.7rem; color:var(--text-muted); line-height:1.7;">
+        <div style="font-size:0.65rem; color:var(--text-muted); line-height:1.7;">
           <div>ISGS Mine Inventory (1988)</div>
           <div>Terra Nova 2024 — Trela et al.</div>
           <div>ISGS Circular 588 — Denny 2017</div>
           <div>USGS Earth MRI SE Illinois</div>
           <div>KGS RI 66 — Lukoczki 2022</div>
+          <div style="color:#FF4444;">USGS Aeroradiometric — Phillips et al.</div>
+          <div style="color:#3B82F6;">USGS N. American Magnetic Anomaly</div>
+          <div style="color:#3B82F6;">USGS Gravity Database</div>
+          <div style="color:#00FF88;">USGS SGMC v2 Geologic Map</div>
         </div>
       </div>
 

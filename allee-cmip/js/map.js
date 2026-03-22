@@ -1,9 +1,10 @@
 /* ============================================================
    ALLEE CMIP — Cesium 3D Map Logic
+   Full geophysical overlay support — radiometric, magnetic,
+   geologic map, and mineral occurrence data from USGS
    ============================================================ */
 
 // ---- Cesium Ion Access Token ----
-// Replace with your token from https://ion.cesium.com/signup
 Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzNjE3MmY0Ni1iZDRlLTQ1YTQtOGY0YS1hNTBlYmEyMjBlYjYiLCJpZCI6Mzc0MDY4LCJpYXQiOjE3NzQxMzAzOTF9.qoTK5i88Gr9c9hne0CQNIajb-3tbiLTE27jn_urP8iI';
 
 // ---- Property Data ----
@@ -103,17 +104,102 @@ const SPARKS_HILL = {
   </div>`
 };
 
+// ============================================================
+// USGS GEOPHYSICAL OVERLAY DEFINITIONS
+// All free, public domain, no API key required
+// ============================================================
+
+const GEOPHYSICAL_OVERLAYS = {
+  // Aeroradiometric Equivalent Thorium — THE key REE indicator
+  // Thorium concentrations directly correlate with REE in carbonatite systems
+  thorium: {
+    name: 'Aeroradiometric Thorium (eTh)',
+    description: 'USGS aerial gamma-ray survey — equivalent Thorium concentration. High Th = REE indicator in carbonatite/alkaline systems. Hot colors = high radioactivity = potential REE mineralization underground.',
+    url: 'https://mrdata.usgs.gov/services/radiometric-th',
+    wmsLayers: '0',
+    alpha: 0.55,
+    category: 'radiometric',
+    legend: 'Hot colors (red/yellow) = HIGH thorium = REE correlation',
+    source: 'USGS Aeroradiometric Compilation, Phillips et al.'
+  },
+  // Aeroradiometric Equivalent Uranium
+  uranium: {
+    name: 'Aeroradiometric Uranium (eU)',
+    description: 'USGS aerial gamma-ray survey — equivalent Uranium. Elevated eU along fault zones indicates deep-sourced hydrothermal fluid flow — same process that transports REE.',
+    url: 'https://mrdata.usgs.gov/services/radiometric-u',
+    wmsLayers: '0',
+    alpha: 0.55,
+    category: 'radiometric',
+    legend: 'Hot colors = HIGH uranium = hydrothermal activity indicator',
+    source: 'USGS Aeroradiometric Compilation, Phillips et al.'
+  },
+  // Aeroradiometric Potassium
+  potassium: {
+    name: 'Aeroradiometric Potassium (%K)',
+    description: 'USGS aerial gamma-ray survey — Potassium percentage. High K can indicate alkaline igneous intrusions associated with carbonatite REE systems.',
+    url: 'https://mrdata.usgs.gov/services/radiometric-k',
+    wmsLayers: '0',
+    alpha: 0.55,
+    category: 'radiometric',
+    legend: 'Hot colors = HIGH potassium = alkaline intrusion indicator',
+    source: 'USGS Aeroradiometric Compilation, Phillips et al.'
+  },
+  // Magnetic Anomaly — shows subsurface igneous structures
+  magnetic: {
+    name: 'Magnetic Anomaly (nT)',
+    description: 'USGS aeromagnetic survey — shows subsurface magnetic anomalies in nanotesla. Magnetic highs over Hicks Dome and the fault system reveal buried igneous/carbonatite structures that host REE.',
+    url: 'https://mrdata.usgs.gov/services/mag-color',
+    wmsLayers: '0',
+    alpha: 0.5,
+    category: 'geophysical',
+    legend: 'Red/magenta = magnetic HIGH = buried igneous body',
+    source: 'USGS North American Magnetic Anomaly Map'
+  },
+  // Gravity Anomaly — deep crustal structure
+  gravity: {
+    name: 'Gravity Anomaly (mGal)',
+    description: 'USGS Bouguer gravity anomaly. Gravity lows can indicate low-density carbonatite intrusions. The Hicks Dome structure produces a distinctive gravity signature.',
+    url: 'https://mrdata.usgs.gov/services/gravity-color',
+    wmsLayers: '0',
+    alpha: 0.5,
+    category: 'geophysical',
+    legend: 'Blue = gravity LOW = possible low-density intrusion',
+    source: 'USGS Gravity Database of the United States'
+  },
+  // State Geologic Map — shows rock units and faults
+  geology: {
+    name: 'Geologic Map (SGMC)',
+    description: 'USGS State Geologic Map Compilation — shows mapped geological units, faults, and contacts. Identifies the specific rock formations on the property and mapped fault traces.',
+    url: 'https://mrdata.usgs.gov/services/sgmc2',
+    wmsLayers: '0',
+    alpha: 0.6,
+    category: 'geology',
+    legend: 'Colored polygons = mapped rock units & structures',
+    source: 'USGS State Geologic Map Compilation (SGMC v2)'
+  }
+};
+
 // ---- Layer Visibility State ----
 const layers = {
   property: true,
   mines: true,
   hicksDome: true,
   sparksHill: true,
-  faultLine: true
+  faultLine: true,
+  // Geophysical overlays (off by default — user toggles on)
+  thorium: false,
+  uranium: false,
+  potassium: false,
+  magnetic: false,
+  gravity: false,
+  geology: false
 };
 
 let viewer;
 let propertyEntity, mineEntities = [], hicksDomeEntity, sparksHillEntity, faultEntity, hicksDomeRing;
+
+// Store imagery layer references for toggle
+const imageryLayerRefs = {};
 
 // ---- Initialize Map ----
 async function initMap() {
@@ -138,16 +224,43 @@ async function initMap() {
     const placeholder = document.getElementById('mapPlaceholder');
     if (placeholder) placeholder.style.display = 'none';
 
+    // Pre-create all geophysical imagery layers (hidden)
+    initGeophysicalLayers();
+
     // Start the fly-in sequence
     await flyInSequence();
   } catch (e) {
     console.error('Cesium initialization failed:', e);
-    // Show placeholder
     const placeholder = document.getElementById('mapPlaceholder');
     if (placeholder) {
       placeholder.style.display = 'flex';
       placeholder.querySelector('p').textContent =
         'Could not initialize Cesium. Please check your access token in js/map.js.';
+    }
+  }
+}
+
+// ---- Initialize USGS Geophysical Overlay Layers ----
+function initGeophysicalLayers() {
+  for (const [key, overlay] of Object.entries(GEOPHYSICAL_OVERLAYS)) {
+    try {
+      const provider = new Cesium.WebMapServiceImageryProvider({
+        url: overlay.url,
+        layers: overlay.wmsLayers,
+        parameters: {
+          transparent: true,
+          format: 'image/png',
+          version: '1.3.0'
+        },
+        credit: overlay.source
+      });
+
+      const layer = viewer.imageryLayers.addImageryProvider(provider);
+      layer.alpha = overlay.alpha;
+      layer.show = false; // All geophysical layers start hidden
+      imageryLayerRefs[key] = layer;
+    } catch (e) {
+      console.warn(`Failed to initialize ${key} layer:`, e);
     }
   }
 }
@@ -257,7 +370,6 @@ function addMineMarker(mine, index) {
 }
 
 function addHicksDome() {
-  // Main marker
   hicksDomeEntity = viewer.entities.add({
     name: 'HICKS DOME REE DEPOSIT',
     position: Cesium.Cartesian3.fromDegrees(HICKS_DOME.lon, HICKS_DOME.lat),
@@ -283,7 +395,6 @@ function addHicksDome() {
     description: HICKS_DOME.description
   });
 
-  // Pulsing circle
   hicksDomeRing = viewer.entities.add({
     position: Cesium.Cartesian3.fromDegrees(HICKS_DOME.lon, HICKS_DOME.lat),
     ellipse: {
@@ -370,6 +481,7 @@ function toggleLayer(layerName) {
   layers[layerName] = !layers[layerName];
   const show = layers[layerName];
 
+  // Entity-based layers
   switch (layerName) {
     case 'property':
       if (propertyEntity) propertyEntity.show = show;
@@ -388,13 +500,54 @@ function toggleLayer(layerName) {
       if (faultEntity) faultEntity.show = show;
       break;
   }
+
+  // Imagery-based layers (geophysical overlays)
+  if (imageryLayerRefs[layerName]) {
+    imageryLayerRefs[layerName].show = show;
+  }
+
   updateLayerCount();
+  updateLegend();
+}
+
+// ---- Opacity Slider for Geophysical Layers ----
+function setOverlayOpacity(layerName, value) {
+  const alpha = parseFloat(value);
+  if (imageryLayerRefs[layerName]) {
+    imageryLayerRefs[layerName].alpha = alpha;
+  }
+  // Update the displayed value
+  const valEl = document.getElementById(`opacity-val-${layerName}`);
+  if (valEl) valEl.textContent = Math.round(alpha * 100) + '%';
 }
 
 function updateLayerCount() {
   const count = Object.values(layers).filter(Boolean).length;
   const el = document.getElementById('layerCount');
   if (el) el.textContent = count + ' ACTIVE';
+}
+
+// ---- Dynamic Legend ----
+function updateLegend() {
+  const legendEl = document.getElementById('activeLegend');
+  if (!legendEl) return;
+
+  const activeOverlays = Object.entries(GEOPHYSICAL_OVERLAYS)
+    .filter(([key]) => layers[key]);
+
+  if (activeOverlays.length === 0) {
+    legendEl.style.display = 'none';
+    return;
+  }
+
+  legendEl.style.display = 'block';
+  legendEl.innerHTML = activeOverlays.map(([key, overlay]) => `
+    <div style="margin-bottom:8px;">
+      <div style="font-size:0.7rem;color:#C9A84C;font-weight:600;margin-bottom:2px;">${overlay.name}</div>
+      <div style="font-size:0.65rem;color:#94A3B8;line-height:1.4;">${overlay.legend}</div>
+      <div style="font-size:0.6rem;color:#64748B;margin-top:2px;">Source: ${overlay.source}</div>
+    </div>
+  `).join('');
 }
 
 // ---- Mouse Position Tracking ----
@@ -408,7 +561,7 @@ function setupMouseTracking() {
       const carto = Cesium.Cartographic.fromCartesian(cartesian);
       const lat = Cesium.Math.toDegrees(carto.latitude).toFixed(5);
       const lon = Cesium.Math.toDegrees(carto.longitude).toFixed(5);
-      const elev = Math.round(carto.height * 3.28084); // to feet
+      const elev = Math.round(carto.height * 3.28084);
 
       const latEl = document.getElementById('statusLat');
       const lonEl = document.getElementById('statusLon');
@@ -426,11 +579,36 @@ function toggleSidebar() {
   sidebar.classList.toggle('collapsed');
 }
 
+// ---- Quick View: Fly to and enable thorium overlay ----
+function quickViewThorium() {
+  // Enable thorium layer
+  if (!layers.thorium) {
+    layers.thorium = true;
+    imageryLayerRefs.thorium.show = true;
+    const cb = document.getElementById('cb-thorium');
+    if (cb) cb.checked = true;
+    updateLayerCount();
+    updateLegend();
+  }
+  // Zoom out to see the regional pattern
+  flyTo(-88.40, 37.48, 30000, 2);
+}
+
+function quickViewMagnetic() {
+  if (!layers.magnetic) {
+    layers.magnetic = true;
+    imageryLayerRefs.magnetic.show = true;
+    const cb = document.getElementById('cb-magnetic');
+    if (cb) cb.checked = true;
+    updateLayerCount();
+    updateLegend();
+  }
+  flyTo(-88.40, 37.48, 40000, 2);
+}
+
 // ---- Initialize ----
 document.addEventListener('DOMContentLoaded', function() {
-  // Check if Cesium is available and token is set
   if (typeof Cesium === 'undefined' || Cesium.Ion.defaultAccessToken === 'PASTE_YOUR_CESIUM_ION_TOKEN_HERE') {
-    // Show placeholder
     const placeholder = document.getElementById('mapPlaceholder');
     if (placeholder) placeholder.style.display = 'flex';
     return;
@@ -439,5 +617,6 @@ document.addEventListener('DOMContentLoaded', function() {
   initMap().then(() => {
     setupMouseTracking();
     updateLayerCount();
+    updateLegend();
   });
 });
