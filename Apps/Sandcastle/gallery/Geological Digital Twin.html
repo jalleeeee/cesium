@@ -3,28 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
-    />
-    <meta
-      name="description"
-      content="Professional 3D geological digital twin of the DuBois fluorspar mine with drill holes, fault planes, ore bodies, and USGS/ISGS WMS geological layers."
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+    <meta name="description" content="Professional 3D geological digital twin of the DuBois fluorspar mine with drill holes, fault planes, ore bodies, and USGS/ISGS WMS geological layers." />
     <meta name="cesium-sandcastle-labels" content="Showcases" />
     <title>Cesium Demo</title>
     <script type="text/javascript" src="../Sandcastle-header.js"></script>
-    <script
-      type="text/javascript"
-      src="../../../Build/CesiumUnminified/Cesium.js"
-      nomodule
-    ></script>
+    <script type="text/javascript" src="../../../Build/CesiumUnminified/Cesium.js" nomodule></script>
     <script type="module" src="../load-cesium-es6.js"></script>
   </head>
-  <body
-    class="sandcastle-loading"
-    data-sandcastle-bucket="bucket-requirejs.html"
-  >
+  <body class="sandcastle-loading" data-sandcastle-bucket="bucket-requirejs.html">
     <style>
       @import url(../templates/bucket.css);
       #toolbar {
@@ -54,104 +41,21 @@
     <div id="toolbar">
       <table>
         <tbody>
-          <tr>
-            <td class="section-header" colspan="2">Geological Entities</td>
-          </tr>
-          <tr>
-            <td>Drill Holes</td>
-            <td>
-              <input type="checkbox" data-bind="checked: showDrillHoles" />
-            </td>
-          </tr>
-          <tr>
-            <td>Iron Furnace Fault</td>
-            <td>
-              <input type="checkbox" data-bind="checked: showMainFault" />
-            </td>
-          </tr>
-          <tr>
-            <td>Secondary Faults</td>
-            <td>
-              <input
-                type="checkbox"
-                data-bind="checked: showSecondaryFaults"
-              />
-            </td>
-          </tr>
-          <tr>
-            <td>Ore Body</td>
-            <td>
-              <input type="checkbox" data-bind="checked: showOreBody" />
-            </td>
-          </tr>
-          <tr>
-            <td class="section-header" colspan="2">WMS Layers</td>
-          </tr>
-          <tr>
-            <td>ISGS Faults</td>
-            <td>
-              <input type="checkbox" data-bind="checked: showISGSFaults" />
-            </td>
-          </tr>
-          <tr>
-            <td>ISGS Bedrock</td>
-            <td>
-              <input type="checkbox" data-bind="checked: showISGSBedrock" />
-            </td>
-          </tr>
-          <tr>
-            <td>USGS Geology</td>
-            <td>
-              <input type="checkbox" data-bind="checked: showUSGSGeology" />
-            </td>
-          </tr>
-          <tr>
-            <td>USGS Structure</td>
-            <td>
-              <input type="checkbox" data-bind="checked: showUSGSStructure" />
-            </td>
-          </tr>
-          <tr>
-            <td>USGS Earth MRI</td>
-            <td>
-              <input type="checkbox" data-bind="checked: showEarthMRI" />
-            </td>
-          </tr>
-          <tr>
-            <td>USGS Active Mines</td>
-            <td>
-              <input type="checkbox" data-bind="checked: showActiveMines" />
-            </td>
-          </tr>
-          <tr>
-            <td class="section-header" colspan="2">Globe Settings</td>
-          </tr>
-          <tr>
-            <td>Translucency</td>
-            <td>
-              <input
-                type="range"
-                min="0.0"
-                max="1.0"
-                step="0.05"
-                data-bind="value: alpha, valueUpdate: 'input'"
-              />
-              <input type="text" size="3" data-bind="value: alpha" />
-            </td>
-          </tr>
-          <tr>
-            <td>Exaggeration</td>
-            <td>
-              <input
-                type="range"
-                min="1.0"
-                max="3.0"
-                step="0.1"
-                data-bind="value: exaggeration, valueUpdate: 'input'"
-              />
-              <input type="text" size="3" data-bind="value: exaggeration" />
-            </td>
-          </tr>
+          <tr><td class="section-header" colspan="2">Geological Entities</td></tr>
+          <tr><td>Drill Holes</td><td><input type="checkbox" data-bind="checked: showDrillHoles" /></td></tr>
+          <tr><td>Iron Furnace Fault</td><td><input type="checkbox" data-bind="checked: showMainFault" /></td></tr>
+          <tr><td>Secondary Faults</td><td><input type="checkbox" data-bind="checked: showSecondaryFaults" /></td></tr>
+          <tr><td>Ore Body</td><td><input type="checkbox" data-bind="checked: showOreBody" /></td></tr>
+          <tr><td class="section-header" colspan="2">WMS Layers</td></tr>
+          <tr><td>ISGS Faults</td><td><input type="checkbox" data-bind="checked: showISGSFaults" /></td></tr>
+          <tr><td>ISGS Bedrock</td><td><input type="checkbox" data-bind="checked: showISGSBedrock" /></td></tr>
+          <tr><td>USGS Geology</td><td><input type="checkbox" data-bind="checked: showUSGSGeology" /></td></tr>
+          <tr><td>USGS Structure</td><td><input type="checkbox" data-bind="checked: showUSGSStructure" /></td></tr>
+          <tr><td>USGS Earth MRI</td><td><input type="checkbox" data-bind="checked: showEarthMRI" /></td></tr>
+          <tr><td>USGS Active Mines</td><td><input type="checkbox" data-bind="checked: showActiveMines" /></td></tr>
+          <tr><td class="section-header" colspan="2">Globe Settings</td></tr>
+          <tr><td>Translucency</td><td><input type="range" min="0.0" max="1.0" step="0.05" data-bind="value: alpha, valueUpdate: 'input'" /><input type="text" size="3" data-bind="value: alpha" /></td></tr>
+          <tr><td>Exaggeration</td><td><input type="range" min="1.0" max="3.0" step="0.1" data-bind="value: exaggeration, valueUpdate: 'input'" /><input type="text" size="3" data-bind="value: exaggeration" /></td></tr>
         </tbody>
       </table>
     </div>
@@ -165,9 +69,8 @@
         // =====================================================================
         const MINE_LON = -88.37337;
         const MINE_LAT = 37.45424;
-        const SURFACE_ELEV = 170; // ~170m ASL, typical Hardin County uplands
+        const SURFACE_ELEV = 170;
 
-        // Lithology color map
         const COLORS = {
           alluvium: Cesium.Color.BROWN,
           steGenevieve: Cesium.Color.CORNFLOWERBLUE,
@@ -183,249 +86,72 @@
         // SYNTHETIC GEOLOGICAL DATA
         // =====================================================================
 
-        // 5 drill holes with Mississippian stratigraphy
         const drillHoles = [
           {
-            lon: MINE_LON,
-            lat: MINE_LAT,
-            name: "DH-01",
+            lon: MINE_LON, lat: MINE_LAT, name: "DH-01",
             intervals: [
               { top: 0, bot: 5, lith: "Alluvium", color: COLORS.alluvium },
-              {
-                top: 5,
-                bot: 32,
-                lith: "Ste. Genevieve Ls.",
-                color: COLORS.steGenevieve,
-              },
-              {
-                top: 32,
-                bot: 55,
-                lith: "St. Louis Ls.",
-                color: COLORS.stLouis,
-              },
-              {
-                top: 55,
-                bot: 68,
-                lith: "Fluorite ore zone",
-                color: COLORS.fluorite,
-              },
-              {
-                top: 68,
-                bot: 95,
-                lith: "Salem Ls.",
-                color: COLORS.salem,
-              },
-              {
-                top: 95,
-                bot: 130,
-                lith: "Hardinsburg Ss.",
-                color: COLORS.hardinsburg,
-              },
-              {
-                top: 130,
-                bot: 165,
-                lith: "Golconda Fm.",
-                color: COLORS.golconda,
-              },
-              {
-                top: 165,
-                bot: 200,
-                lith: "Cypress Ss.",
-                color: COLORS.cypress,
-              },
+              { top: 5, bot: 32, lith: "Ste. Genevieve Ls.", color: COLORS.steGenevieve },
+              { top: 32, bot: 55, lith: "St. Louis Ls.", color: COLORS.stLouis },
+              { top: 55, bot: 68, lith: "Fluorite ore zone", color: COLORS.fluorite },
+              { top: 68, bot: 95, lith: "Salem Ls.", color: COLORS.salem },
+              { top: 95, bot: 130, lith: "Hardinsburg Ss.", color: COLORS.hardinsburg },
+              { top: 130, bot: 165, lith: "Golconda Fm.", color: COLORS.golconda },
+              { top: 165, bot: 200, lith: "Cypress Ss.", color: COLORS.cypress },
             ],
           },
           {
-            lon: MINE_LON + 0.0015,
-            lat: MINE_LAT + 0.001,
-            name: "DH-02",
+            lon: MINE_LON + 0.0015, lat: MINE_LAT + 0.001, name: "DH-02",
             intervals: [
               { top: 0, bot: 4, lith: "Alluvium", color: COLORS.alluvium },
-              {
-                top: 4,
-                bot: 28,
-                lith: "Ste. Genevieve Ls.",
-                color: COLORS.steGenevieve,
-              },
-              {
-                top: 28,
-                bot: 50,
-                lith: "St. Louis Ls.",
-                color: COLORS.stLouis,
-              },
-              {
-                top: 50,
-                bot: 60,
-                lith: "Fluorite ore zone",
-                color: COLORS.fluorite,
-              },
-              {
-                top: 60,
-                bot: 88,
-                lith: "Salem Ls.",
-                color: COLORS.salem,
-              },
-              {
-                top: 88,
-                bot: 125,
-                lith: "Hardinsburg Ss.",
-                color: COLORS.hardinsburg,
-              },
-              {
-                top: 125,
-                bot: 158,
-                lith: "Golconda Fm.",
-                color: COLORS.golconda,
-              },
-              {
-                top: 158,
-                bot: 200,
-                lith: "Cypress Ss.",
-                color: COLORS.cypress,
-              },
+              { top: 4, bot: 28, lith: "Ste. Genevieve Ls.", color: COLORS.steGenevieve },
+              { top: 28, bot: 50, lith: "St. Louis Ls.", color: COLORS.stLouis },
+              { top: 50, bot: 60, lith: "Fluorite ore zone", color: COLORS.fluorite },
+              { top: 60, bot: 88, lith: "Salem Ls.", color: COLORS.salem },
+              { top: 88, bot: 125, lith: "Hardinsburg Ss.", color: COLORS.hardinsburg },
+              { top: 125, bot: 158, lith: "Golconda Fm.", color: COLORS.golconda },
+              { top: 158, bot: 200, lith: "Cypress Ss.", color: COLORS.cypress },
             ],
           },
           {
-            lon: MINE_LON - 0.001,
-            lat: MINE_LAT + 0.0015,
-            name: "DH-03",
+            lon: MINE_LON - 0.001, lat: MINE_LAT + 0.0015, name: "DH-03",
             intervals: [
               { top: 0, bot: 6, lith: "Alluvium", color: COLORS.alluvium },
-              {
-                top: 6,
-                bot: 35,
-                lith: "Ste. Genevieve Ls.",
-                color: COLORS.steGenevieve,
-              },
-              {
-                top: 35,
-                bot: 58,
-                lith: "St. Louis Ls.",
-                color: COLORS.stLouis,
-              },
-              {
-                top: 58,
-                bot: 72,
-                lith: "Fluorite ore zone",
-                color: COLORS.fluorite,
-              },
-              {
-                top: 72,
-                bot: 98,
-                lith: "Salem Ls.",
-                color: COLORS.salem,
-              },
-              {
-                top: 98,
-                bot: 135,
-                lith: "Hardinsburg Ss.",
-                color: COLORS.hardinsburg,
-              },
-              {
-                top: 135,
-                bot: 170,
-                lith: "Golconda Fm.",
-                color: COLORS.golconda,
-              },
-              {
-                top: 170,
-                bot: 200,
-                lith: "Cypress Ss.",
-                color: COLORS.cypress,
-              },
+              { top: 6, bot: 35, lith: "Ste. Genevieve Ls.", color: COLORS.steGenevieve },
+              { top: 35, bot: 58, lith: "St. Louis Ls.", color: COLORS.stLouis },
+              { top: 58, bot: 72, lith: "Fluorite ore zone", color: COLORS.fluorite },
+              { top: 72, bot: 98, lith: "Salem Ls.", color: COLORS.salem },
+              { top: 98, bot: 135, lith: "Hardinsburg Ss.", color: COLORS.hardinsburg },
+              { top: 135, bot: 170, lith: "Golconda Fm.", color: COLORS.golconda },
+              { top: 170, bot: 200, lith: "Cypress Ss.", color: COLORS.cypress },
             ],
           },
           {
-            lon: MINE_LON + 0.002,
-            lat: MINE_LAT - 0.001,
-            name: "DH-04",
+            lon: MINE_LON + 0.002, lat: MINE_LAT - 0.001, name: "DH-04",
             intervals: [
               { top: 0, bot: 3, lith: "Alluvium", color: COLORS.alluvium },
-              {
-                top: 3,
-                bot: 30,
-                lith: "Ste. Genevieve Ls.",
-                color: COLORS.steGenevieve,
-              },
-              {
-                top: 30,
-                bot: 52,
-                lith: "St. Louis Ls.",
-                color: COLORS.stLouis,
-              },
-              {
-                top: 52,
-                bot: 85,
-                lith: "Salem Ls.",
-                color: COLORS.salem,
-              },
-              {
-                top: 85,
-                bot: 120,
-                lith: "Hardinsburg Ss.",
-                color: COLORS.hardinsburg,
-              },
-              {
-                top: 120,
-                bot: 155,
-                lith: "Golconda Fm.",
-                color: COLORS.golconda,
-              },
-              {
-                top: 155,
-                bot: 200,
-                lith: "Cypress Ss.",
-                color: COLORS.cypress,
-              },
+              { top: 3, bot: 30, lith: "Ste. Genevieve Ls.", color: COLORS.steGenevieve },
+              { top: 30, bot: 52, lith: "St. Louis Ls.", color: COLORS.stLouis },
+              { top: 52, bot: 85, lith: "Salem Ls.", color: COLORS.salem },
+              { top: 85, bot: 120, lith: "Hardinsburg Ss.", color: COLORS.hardinsburg },
+              { top: 120, bot: 155, lith: "Golconda Fm.", color: COLORS.golconda },
+              { top: 155, bot: 200, lith: "Cypress Ss.", color: COLORS.cypress },
             ],
           },
           {
-            lon: MINE_LON - 0.0015,
-            lat: MINE_LAT - 0.0012,
-            name: "DH-05",
+            lon: MINE_LON - 0.0015, lat: MINE_LAT - 0.0012, name: "DH-05",
             intervals: [
               { top: 0, bot: 7, lith: "Alluvium", color: COLORS.alluvium },
-              {
-                top: 7,
-                bot: 38,
-                lith: "Ste. Genevieve Ls.",
-                color: COLORS.steGenevieve,
-              },
-              {
-                top: 38,
-                bot: 60,
-                lith: "St. Louis Ls.",
-                color: COLORS.stLouis,
-              },
-              {
-                top: 60,
-                bot: 90,
-                lith: "Salem Ls.",
-                color: COLORS.salem,
-              },
-              {
-                top: 90,
-                bot: 128,
-                lith: "Hardinsburg Ss.",
-                color: COLORS.hardinsburg,
-              },
-              {
-                top: 128,
-                bot: 162,
-                lith: "Golconda Fm.",
-                color: COLORS.golconda,
-              },
-              {
-                top: 162,
-                bot: 200,
-                lith: "Cypress Ss.",
-                color: COLORS.cypress,
-              },
+              { top: 7, bot: 38, lith: "Ste. Genevieve Ls.", color: COLORS.steGenevieve },
+              { top: 38, bot: 60, lith: "St. Louis Ls.", color: COLORS.stLouis },
+              { top: 60, bot: 90, lith: "Salem Ls.", color: COLORS.salem },
+              { top: 90, bot: 128, lith: "Hardinsburg Ss.", color: COLORS.hardinsburg },
+              { top: 128, bot: 162, lith: "Golconda Fm.", color: COLORS.golconda },
+              { top: 162, bot: 200, lith: "Cypress Ss.", color: COLORS.cypress },
             ],
           },
         ];
 
-        // Iron Furnace Fault trace (NE trend, N55E strike, ~2km)
         const mainFaultTrace = [
           [MINE_LON - 0.008, MINE_LAT - 0.005],
           [MINE_LON - 0.005, MINE_LAT - 0.003],
@@ -435,20 +161,13 @@
           [MINE_LON + 0.007, MINE_LAT + 0.005],
         ];
 
-        // Ore body outline (elongated along fault trend, ~400m x 200m)
         const oreOutline = [
-          MINE_LON - 0.002,
-          MINE_LAT - 0.0008,
-          MINE_LON - 0.0005,
-          MINE_LAT + 0.0015,
-          MINE_LON + 0.002,
-          MINE_LAT + 0.002,
-          MINE_LON + 0.003,
-          MINE_LAT + 0.0015,
-          MINE_LON + 0.0025,
-          MINE_LAT - 0.0002,
-          MINE_LON + 0.0005,
-          MINE_LAT - 0.001,
+          MINE_LON - 0.002, MINE_LAT - 0.0008,
+          MINE_LON - 0.0005, MINE_LAT + 0.0015,
+          MINE_LON + 0.002, MINE_LAT + 0.002,
+          MINE_LON + 0.003, MINE_LAT + 0.0015,
+          MINE_LON + 0.0025, MINE_LAT - 0.0002,
+          MINE_LON + 0.0005, MINE_LAT - 0.001,
         ];
 
         // =====================================================================
@@ -465,21 +184,8 @@
               const height = SURFACE_ELEV - midDepth;
               const entity = viewer.entities.add({
                 name: dh.name + ": " + iv.lith,
-                description:
-                  "<b>" +
-                  dh.name +
-                  "</b><br>" +
-                  iv.lith +
-                  "<br>Depth: " +
-                  iv.top +
-                  " - " +
-                  iv.bot +
-                  "m",
-                position: Cesium.Cartesian3.fromDegrees(
-                  dh.lon,
-                  dh.lat,
-                  height
-                ),
+                description: "<b>" + dh.name + "</b><br>" + iv.lith + "<br>Depth: " + iv.top + " - " + iv.bot + "m",
+                position: Cesium.Cartesian3.fromDegrees(dh.lon, dh.lat, height),
                 cylinder: {
                   length: length,
                   topRadius: RADIUS,
@@ -506,14 +212,9 @@
           }
           return viewer.entities.add({
             name: "Iron Furnace Fault Zone",
-            description:
-              "<b>Iron Furnace Fault Zone</b><br>" +
-              "Strike: N55E, near-vertical dip<br>" +
-              "Displacement: ~183m (600 ft)<br>" +
-              "75-ft gouge/breccia zone observed in outcrop",
+            description: "<b>Iron Furnace Fault Zone</b><br>Strike: N55E, near-vertical dip<br>Displacement: ~183m (600 ft)<br>75-ft gouge/breccia zone observed in outcrop",
             wall: {
-              positions:
-                Cesium.Cartesian3.fromDegreesArrayHeights(positions),
+              positions: Cesium.Cartesian3.fromDegreesArrayHeights(positions),
               minimumHeights: minHeights,
               material: Cesium.Color.RED.withAlpha(0.3),
               outline: true,
@@ -522,59 +223,30 @@
           });
         }
 
-        function createFaultFromStrikeDip(
-          viewer,
-          name,
-          lon,
-          lat,
-          strikeDegs,
-          dipDegs,
-          lengthM,
-          depthM
-        ) {
+        function createFaultFromStrikeDip(viewer, name, lon, lat, strikeDegs, dipDegs, lengthM, depthM) {
           const strikeRad = Cesium.Math.toRadians(strikeDegs);
           const dipRad = Cesium.Math.toRadians(dipDegs);
           const dipDirRad = strikeRad + Math.PI / 2;
-
           const halfLen = lengthM / 2;
           const dipHoriz = depthM / Math.tan(dipRad);
-
           const mPerDegLat = 111320;
-          const mPerDegLon =
-            111320 * Math.cos(Cesium.Math.toRadians(lat));
+          const mPerDegLon = 111320 * Math.cos(Cesium.Math.toRadians(lat));
 
           const dLon = (halfLen * Math.sin(strikeRad)) / mPerDegLon;
           const dLat = (halfLen * Math.cos(strikeRad)) / mPerDegLat;
-
           const ddLon = (dipHoriz * Math.sin(dipDirRad)) / mPerDegLon;
           const ddLat = (dipHoriz * Math.cos(dipDirRad)) / mPerDegLat;
 
           const corners = Cesium.Cartesian3.fromDegreesArrayHeights([
-            lon - dLon,
-            lat - dLat,
-            SURFACE_ELEV,
-            lon + dLon,
-            lat + dLat,
-            SURFACE_ELEV,
-            lon + dLon + ddLon,
-            lat + dLat + ddLat,
-            SURFACE_ELEV - depthM,
-            lon - dLon + ddLon,
-            lat - dLat + ddLat,
-            SURFACE_ELEV - depthM,
+            lon - dLon, lat - dLat, SURFACE_ELEV,
+            lon + dLon, lat + dLat, SURFACE_ELEV,
+            lon + dLon + ddLon, lat + dLat + ddLat, SURFACE_ELEV - depthM,
+            lon - dLon + ddLon, lat - dLat + ddLat, SURFACE_ELEV - depthM,
           ]);
 
           return viewer.entities.add({
             name: name,
-            description:
-              "<b>" +
-              name +
-              "</b><br>" +
-              "Strike: " +
-              strikeDegs +
-              "&deg;, Dip: " +
-              dipDegs +
-              "&deg;",
+            description: "<b>" + name + "</b><br>Strike: " + strikeDegs + "&deg;, Dip: " + dipDegs + "&deg;",
             polygon: {
               hierarchy: new Cesium.PolygonHierarchy(corners),
               perPositionHeight: true,
@@ -588,11 +260,7 @@
         function createOreBody(viewer) {
           return viewer.entities.add({
             name: "Fluorite Ore Body (Ste. Genevieve Ls.)",
-            description:
-              "<b>Fluorite Ore Zone</b><br>" +
-              "Host: Ste. Genevieve Limestone<br>" +
-              "Mineralization: Fluorite + galena + sphalerite<br>" +
-              "Type: Vein deposit along fault zone",
+            description: "<b>Fluorite Ore Zone</b><br>Host: Ste. Genevieve Limestone<br>Mineralization: Fluorite + galena + sphalerite<br>Type: Vein deposit along fault zone",
             polygon: {
               hierarchy: Cesium.Cartesian3.fromDegreesArray(oreOutline),
               height: SURFACE_ELEV - 68,
@@ -609,9 +277,7 @@
         // =====================================================================
 
         const viewer = new Cesium.Viewer("cesiumContainer", {
-          terrain: Cesium.Terrain.fromWorldTerrain({
-            requestVertexNormals: true,
-          }),
+          terrain: Cesium.Terrain.fromWorldTerrain({ requestVertexNormals: true }),
           baseLayerPicker: false,
           geocoder: false,
           animation: false,
@@ -621,25 +287,11 @@
         const scene = viewer.scene;
         const globe = scene.globe;
 
-        // Allow underground camera navigation
         scene.screenSpaceCameraController.enableCollisionDetection = false;
-
-        // Globe translucency for subsurface visibility
         globe.translucency.enabled = true;
-        globe.translucency.frontFaceAlphaByDistance =
-          new Cesium.NearFarScalar(400.0, 0.2, 8000.0, 1.0);
-
-        // Underground color
-        globe.undergroundColor =
-          Cesium.Color.fromCssColorString("#1a1a2e");
-        globe.undergroundColorAlphaByDistance = new Cesium.NearFarScalar(
-          1000.0,
-          0.5,
-          8000.0,
-          0.0
-        );
-
-        // Terrain lighting and exaggeration
+        globe.translucency.frontFaceAlphaByDistance = new Cesium.NearFarScalar(400.0, 0.2, 8000.0, 1.0);
+        globe.undergroundColor = Cesium.Color.fromCssColorString("#1a1a2e");
+        globe.undergroundColorAlphaByDistance = new Cesium.NearFarScalar(1000.0, 0.5, 8000.0, 0.0);
         globe.enableLighting = true;
         scene.verticalExaggeration = 1.5;
 
@@ -649,28 +301,8 @@
 
         const drillHoleEntities = createDrillHoles(viewer);
         const mainFaultEntity = createMainFault(viewer);
-
-        const secondaryFault1 = createFaultFromStrikeDip(
-          viewer,
-          "Splay Fault A (NNE)",
-          MINE_LON - 0.003,
-          MINE_LAT + 0.002,
-          30,
-          70,
-          800,
-          250
-        );
-        const secondaryFault2 = createFaultFromStrikeDip(
-          viewer,
-          "Splay Fault B (ENE)",
-          MINE_LON + 0.004,
-          MINE_LAT - 0.001,
-          80,
-          60,
-          600,
-          200
-        );
-
+        const secondaryFault1 = createFaultFromStrikeDip(viewer, "Splay Fault A (NNE)", MINE_LON - 0.003, MINE_LAT + 0.002, 30, 70, 800, 250);
+        const secondaryFault2 = createFaultFromStrikeDip(viewer, "Splay Fault B (ENE)", MINE_LON + 0.004, MINE_LAT - 0.001, 80, 60, 600, 200);
         const oreBodyEntity = createOreBody(viewer);
 
         // =====================================================================
@@ -682,10 +314,7 @@
           new Cesium.WebMapServiceImageryProvider({
             url: "https://data.isgs.illinois.edu/arcgis/services/Geology/OIINK/MapServer/WMSServer",
             layers: "53",
-            parameters: {
-              transparent: true,
-              format: "image/png",
-            },
+            parameters: { transparent: true, format: "image/png" },
           })
         );
         isgsFaultsLayer.alpha = 0.7;
@@ -696,10 +325,7 @@
           new Cesium.WebMapServiceImageryProvider({
             url: "https://data.isgs.illinois.edu/arcgis/services/Geology/OIINK/MapServer/WMSServer",
             layers: "17",
-            parameters: {
-              transparent: true,
-              format: "image/png",
-            },
+            parameters: { transparent: true, format: "image/png" },
           })
         );
         isgsBedrockLayer.alpha = 0.6;
@@ -711,10 +337,7 @@
           new Cesium.WebMapServiceImageryProvider({
             url: "https://mrdata.usgs.gov/services/sgmc2",
             layers: "SGMC_Geology",
-            parameters: {
-              transparent: true,
-              format: "image/png",
-            },
+            parameters: { transparent: true, format: "image/png" },
           })
         );
         usgsGeologyLayer.alpha = 0.5;
@@ -726,10 +349,7 @@
           new Cesium.WebMapServiceImageryProvider({
             url: "https://mrdata.usgs.gov/services/sgmc2",
             layers: "SGMC_Structure",
-            parameters: {
-              transparent: true,
-              format: "image/png",
-            },
+            parameters: { transparent: true, format: "image/png" },
           })
         );
         usgsStructureLayer.alpha = 0.6;
@@ -741,10 +361,7 @@
           new Cesium.WebMapServiceImageryProvider({
             url: "https://mrdata.usgs.gov/services/mrds",
             layers: "mrds",
-            parameters: {
-              transparent: true,
-              format: "image/png",
-            },
+            parameters: { transparent: true, format: "image/png" },
           })
         );
         earthMRILayer.alpha = 0.8;
@@ -755,10 +372,7 @@
           new Cesium.WebMapServiceImageryProvider({
             url: "https://mrdata.usgs.gov/services/active-mines",
             layers: "active-mines",
-            parameters: {
-              transparent: true,
-              format: "image/png",
-            },
+            parameters: { transparent: true, format: "image/png" },
           })
         );
         activeMinesLayer.alpha = 0.7;
@@ -769,20 +383,10 @@
         // CLIPPING PLANES (for cross-section view)
         // =====================================================================
 
-        const mineCenter = Cesium.Cartesian3.fromDegrees(
-          MINE_LON,
-          MINE_LAT,
-          SURFACE_ELEV
-        );
+        const mineCenter = Cesium.Cartesian3.fromDegrees(MINE_LON, MINE_LAT, SURFACE_ELEV);
         globe.clippingPlanes = new Cesium.ClippingPlaneCollection({
-          modelMatrix:
-            Cesium.Transforms.eastNorthUpToFixedFrame(mineCenter),
-          planes: [
-            new Cesium.ClippingPlane(
-              new Cesium.Cartesian3(0.0, 1.0, 0.0),
-              0.0
-            ),
-          ],
+          modelMatrix: Cesium.Transforms.eastNorthUpToFixedFrame(mineCenter),
+          planes: [new Cesium.ClippingPlane(new Cesium.Cartesian3(0.0, 1.0, 0.0), 0.0)],
           edgeWidth: 2.0,
           edgeColor: Cesium.Color.WHITE,
           enabled: false,
@@ -812,24 +416,15 @@
         Cesium.knockout.applyBindings(viewModel, toolbar);
 
         function update() {
-          // Drill holes
           const showDH = viewModel.showDrillHoles;
           for (let i = 0; i < drillHoleEntities.length; i++) {
             drillHoleEntities[i].show = showDH;
           }
-
-          // Main fault
           mainFaultEntity.show = viewModel.showMainFault;
-
-          // Secondary faults
-          const showSF = viewModel.showSecondaryFaults;
-          secondaryFault1.show = showSF;
-          secondaryFault2.show = showSF;
-
-          // Ore body
+          secondaryFault1.show = viewModel.showSecondaryFaults;
+          secondaryFault2.show = viewModel.showSecondaryFaults;
           oreBodyEntity.show = viewModel.showOreBody;
 
-          // WMS layers
           isgsFaultsLayer.show = viewModel.showISGSFaults;
           isgsBedrockLayer.show = viewModel.showISGSBedrock;
           usgsGeologyLayer.show = viewModel.showUSGSGeology;
@@ -837,27 +432,19 @@
           earthMRILayer.show = viewModel.showEarthMRI;
           activeMinesLayer.show = viewModel.showActiveMines;
 
-          // Globe translucency
           let alpha = Number(viewModel.alpha);
-          if (isNaN(alpha)) {
-            alpha = 0.2;
-          }
+          if (isNaN(alpha)) alpha = 0.2;
           alpha = Cesium.Math.clamp(alpha, 0.0, 1.0);
           globe.translucency.frontFaceAlphaByDistance.nearValue = alpha;
 
-          // Terrain exaggeration
           let exag = Number(viewModel.exaggeration);
-          if (isNaN(exag)) {
-            exag = 1.5;
-          }
+          if (isNaN(exag)) exag = 1.5;
           scene.verticalExaggeration = exag;
         }
 
         for (const name in viewModel) {
           if (viewModel.hasOwnProperty(name)) {
-            Cesium.knockout
-              .getObservable(viewModel, name)
-              .subscribe(update);
+            Cesium.knockout.getObservable(viewModel, name).subscribe(update);
           }
         }
 
@@ -868,16 +455,8 @@
         Sandcastle.addToolbarButton("Overview", function () {
           globe.clippingPlanes.enabled = false;
           viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(
-              MINE_LON,
-              MINE_LAT - 0.03,
-              5000
-            ),
-            orientation: {
-              heading: Cesium.Math.toRadians(10),
-              pitch: Cesium.Math.toRadians(-45),
-              roll: 0,
-            },
+            destination: Cesium.Cartesian3.fromDegrees(MINE_LON, MINE_LAT - 0.03, 5000),
+            orientation: { heading: Cesium.Math.toRadians(10), pitch: Cesium.Math.toRadians(-45), roll: 0 },
             duration: 2.0,
           });
         });
@@ -885,16 +464,8 @@
         Sandcastle.addToolbarButton("Underground", function () {
           globe.clippingPlanes.enabled = false;
           viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(
-              MINE_LON - 0.003,
-              MINE_LAT,
-              SURFACE_ELEV - 80
-            ),
-            orientation: {
-              heading: Cesium.Math.toRadians(45),
-              pitch: Cesium.Math.toRadians(10),
-              roll: 0,
-            },
+            destination: Cesium.Cartesian3.fromDegrees(MINE_LON - 0.003, MINE_LAT, SURFACE_ELEV - 80),
+            orientation: { heading: Cesium.Math.toRadians(45), pitch: Cesium.Math.toRadians(10), roll: 0 },
             duration: 2.0,
           });
         });
@@ -902,16 +473,8 @@
         Sandcastle.addToolbarButton("Cross-Section", function () {
           globe.clippingPlanes.enabled = true;
           viewer.camera.flyTo({
-            destination: Cesium.Cartesian3.fromDegrees(
-              MINE_LON,
-              MINE_LAT - 0.008,
-              1500
-            ),
-            orientation: {
-              heading: Cesium.Math.toRadians(0),
-              pitch: Cesium.Math.toRadians(-15),
-              roll: 0,
-            },
+            destination: Cesium.Cartesian3.fromDegrees(MINE_LON, MINE_LAT - 0.008, 1500),
+            orientation: { heading: Cesium.Math.toRadians(0), pitch: Cesium.Math.toRadians(-15), roll: 0 },
             duration: 2.0,
           });
         });
@@ -921,25 +484,14 @@
         // =====================================================================
 
         viewer.camera.setView({
-          destination: Cesium.Cartesian3.fromDegrees(
-            MINE_LON,
-            MINE_LAT - 0.03,
-            5000
-          ),
-          orientation: {
-            heading: Cesium.Math.toRadians(10),
-            pitch: Cesium.Math.toRadians(-45),
-            roll: 0,
-          },
+          destination: Cesium.Cartesian3.fromDegrees(MINE_LON, MINE_LAT - 0.03, 5000),
+          orientation: { heading: Cesium.Math.toRadians(10), pitch: Cesium.Math.toRadians(-45), roll: 0 },
         });
         //Sandcastle_End
       };
       if (typeof Cesium !== "undefined") {
         window.startupCalled = true;
-        window.startup(Cesium).catch((error) => {
-          "use strict";
-          console.error(error);
-        });
+        window.startup(Cesium).catch((error) => { "use strict"; console.error(error); });
         Sandcastle.finishedLoading();
       }
     </script>
